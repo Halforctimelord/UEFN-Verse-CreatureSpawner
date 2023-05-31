@@ -1,0 +1,41 @@
+using { /Verse.org/Simulation }
+using { /Fortnite.com/Devices }
+
+MakeSpawnerDisabler<constructor><public>() := SpawnerDisabler:
+
+SpawnerDisabler :=class(creative_device):
+
+    var Spawner<internal>: creature_spawner_device = creature_spawner_device{}
+    var ResetingGame<private> : int = 0
+
+    SetSpawner<public>(CreatureSpawner:creature_spawner_device):void=
+        set Spawner=CreatureSpawner
+
+    SpawnCreatures<public>():void=
+        set ResetingGame=0
+        Spawner.Enable()
+        spawn {CountDownDisableSpawner()}
+
+    Reset<public>():void=
+        set ResetingGame=1
+        DisableSpawnerAndEliminate()
+
+    CountDownDisableSpawner<public>()<suspends>:void=
+        var Countdown:int=2
+        loop:
+            if(ResetingGame=1):
+                break
+            else:     
+                set Countdown-=1
+                if(Countdown=0): 
+                    DisableSpawner()
+                    break
+                else:    
+                    Sleep(1.0)   
+
+    DisableSpawner<public>():void=
+        Spawner.Disable()
+
+    DisableSpawnerAndEliminate<private>():void=
+        Spawner.EliminateCreatures()
+        Spawner.Disable()
